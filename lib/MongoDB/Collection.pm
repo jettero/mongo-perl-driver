@@ -780,18 +780,13 @@ sub find_and_modify {
 
     my $result;
 
-    eval {
-        $result = $self->_database->run_command($cmd);
-    };
-    if ($@) {
-        die $@;
-    }
+    eval { $result = $self->_database->run_command($cmd); 1 } or Carp::croak("error running find_and_modify: $@");
+
     unless (ref $result) {
-        if ($result eq 'No matching object found') {
-            return {};
-        }
-        die $result;
+        return if $result eq 'No matching object found';
+        Carp::croak("error running find_and_modify: $result");
     }
+
     return $result->{value};
 }
 
